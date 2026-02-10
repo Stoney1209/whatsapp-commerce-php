@@ -1,1 +1,31 @@
-<?php class Database { private $pdo; public function __construct() { require_once __DIR__ . '/../config/database.php'; global $pdo; $this->pdo = $pdo; } public function getConnection() { return $this->pdo; } public function query($sql, $params = []) { try { $stmt = $this->pdo->prepare($sql); $stmt->execute($params); return $stmt->fetchAll(PDO::FETCH_ASSOC); } catch (PDOException $e) { error_log($e->getMessage()); return false; } } public function queryOne($sql, $params = []) { try { $stmt = $this->pdo->prepare($sql); $stmt->execute($params); return $stmt->fetch(PDO::FETCH_ASSOC); } catch (PDOException $e) { error_log($e->getMessage()); return false; } } public function execute($sql, $params = []) { try { $stmt = $this->pdo->prepare($sql); return $stmt->execute($params); } catch (PDOException $e) { error_log($e->getMessage()); return false; } } public function lastInsertId() { return $this->pdo->lastInsertId(); } } ?>
+<?php
+
+class Database {
+    private $pdo;
+
+    public function __construct($host, $dbname, $user, $pass) {
+        $this->pdo = new PDO("mysql:host=" . $host . ";dbname=" . $dbname, $user, $pass);
+    }
+
+    public function query($sql, $params = []) {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
+    }
+
+    public function queryOne($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function execute($sql, $params = []) {
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    public function lastInsertId() {
+        return $this->pdo->lastInsertId();
+    }
+}
+
+?>
